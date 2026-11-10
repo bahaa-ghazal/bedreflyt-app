@@ -24,30 +24,47 @@ const DataInspector = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const patientData = await getPatientData();
-        const treatmentData = await getTreatmentData();
-        const roomData = await getRoomData();
-        console.log(roomData);
-        const taskData = await getTaskData();
-        const diagnosisData = await getDiagnosisData();
-        const monitoringCategoryData = await getMonitoringCategoryData();
-        const cityData = await getCityData();
-        const wardData = await getWardData();
-        const hospitalData = await getHospitalData();
+      // Helper function to catch individual errors and return empty arrays on failure
+      const safeFetch = async <T,>(fetchFn: () => Promise<T[]>): Promise<T[]> => {
+        try {
+          return await fetchFn();
+        } catch (error) {
+          console.error(`Failed to fetch data:`, error);
+          return [];
+        }
+      };
 
-        setPatientData(patientData);
-        setTreatmentData(treatmentData);
-        setRoomData(roomData);
-        setTaskData(taskData);
-        setDiagnosisData(diagnosisData);
-        setMonitoringCategoryData(monitoringCategoryData);
-        setCityData(cityData);
-        setWardData(wardData);
-        setHospitalData(hospitalData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+      const [
+        patientData,
+        treatmentData,
+        roomData,
+        taskData,
+        diagnosisData,
+        monitoringCategoryData,
+        cityData,
+        wardData,
+        hospitalData
+      ] = await Promise.all([
+        safeFetch(getPatientData),
+        safeFetch(getTreatmentData),
+        safeFetch(getRoomData),
+        safeFetch(getTaskData),
+        safeFetch(getDiagnosisData),
+        safeFetch(getMonitoringCategoryData),
+        safeFetch(getCityData),
+        safeFetch(getWardData),
+        safeFetch(getHospitalData)
+      ]);
+
+      setPatientData(patientData);
+      setTreatmentData(treatmentData);
+      setRoomData(roomData);
+      setTaskData(taskData);
+      setDiagnosisData(diagnosisData);
+      setMonitoringCategoryData(monitoringCategoryData);
+      setCityData(cityData);
+      setWardData(wardData);
+      setHospitalData(hospitalData);
     };
 
     fetchData();
